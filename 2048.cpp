@@ -24,6 +24,7 @@ HWND upButton;
 HWND downButton;
 HWND rightButton;
 HWND leftButton;
+bool newGame = TRUE;
 
 // Forward declarations of functions included in this code module:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -131,20 +132,140 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    return TRUE;
 }
 
-//Function is called to interact with the game
-void buttonClicked(int param) {
-    if (param == 0) {
+//Check if there is a zero in the gridValues array
+bool containsZero() {
+    for (int x = 0; x < 4; x++) {
+        for (int y = 0; y < 4; y++) {
+            if (gridValues[x][y] == 0) {
+                return TRUE;
+            }
+        }
+    }
+    return FALSE;
+}
 
+//Function is called to interact with the game and move the values in the direction provided and add adjacent values if they are the same
+void buttonClicked(int param, HWND hWnd) {
+    bool newValue = FALSE;
+    if (param == 0) {
+        //Up
+        for (int i = 0; i < 3; i++) {
+            for (int x = 0; x < 4; x++) {
+                int tmpArray[4] = { 0,0,0,0 };
+                int arrPos = 0;
+                for (int y = 0; y < 4; y++) {
+                    if (gridValues[x][y] != 0) {
+                        tmpArray[arrPos] = gridValues[x][y];
+                        arrPos++;
+                    }
+                }
+                for (int y = 0; y < 3; y++) {
+                    if (tmpArray[y] != 0 && tmpArray[y + 1] != 0) {
+                        if (tmpArray[y] == tmpArray[y + 1]) {
+                            tmpArray[y] += tmpArray[y + 1];
+                            tmpArray[y + 1] = 0;
+                        }
+                    }
+                }
+                for (int y = 0; y < 4; y++) {
+                    gridValues[x][y] = tmpArray[y];
+                }
+            }
+        }
+        newValue = TRUE;
     }
     else if (param == 1) {
-
+        //Down
+        for (int i = 0; i < 3; i++) {
+            for (int x = 0; x < 4; x++) {
+                int tmpArray[4] = { 0,0,0,0 };
+                int arrPos = 0;
+                for (int y = 3; y >= 0; y--) {
+                    if (gridValues[x][y] != 0) {
+                        tmpArray[arrPos] = gridValues[x][y];
+                        arrPos++;
+                    }
+                }
+                for (int y = 0; y < 3; y++) {
+                    if (tmpArray[y] != 0 && tmpArray[y + 1] != 0) {
+                        if (tmpArray[y] == tmpArray[y + 1]) {
+                            tmpArray[y] += tmpArray[y + 1];
+                            tmpArray[y + 1] = 0;
+                        }
+                    }
+                }
+                for (int y = 0; y < 4; y++) {
+                    gridValues[x][y] = tmpArray[3 - y];
+                }
+            }
+        }
+        newValue = TRUE;
     }
     else if (param == 2) {
-
+        //Left
+        for (int i = 0; i < 3; i++) {
+            for (int x = 0; x < 4; x++) {
+                int tmpArray[4] = { 0,0,0,0 };
+                int arrPos = 0;
+                for (int y = 0; y < 4; y++) {
+                    if (gridValues[y][x] != 0) {
+                        tmpArray[arrPos] = gridValues[y][x];
+                        arrPos++;
+                    }
+                }
+                for (int y = 0; y < 3; y++) {
+                    if (tmpArray[y] != 0 && tmpArray[y + 1] != 0) {
+                        if (tmpArray[y] == tmpArray[y + 1]) {
+                            tmpArray[y] += tmpArray[y + 1];
+                            tmpArray[y + 1] = 0;
+                        }
+                    }
+                }
+                for (int y = 0; y < 4; y++) {
+                    gridValues[y][x] = tmpArray[y];
+                }
+            }
+        }
+        newValue = TRUE;
     }
     else if (param == 3) {
-
+        //Right
+        for (int i = 0; i < 3; i++) {
+            for (int x = 0; x < 4; x++) {
+                int tmpArray[4] = { 0,0,0,0 };
+                int arrPos = 0;
+                for (int y = 3; y >= 0; y--) {
+                    if (gridValues[y][x] != 0) {
+                        tmpArray[arrPos] = gridValues[y][x];
+                        arrPos++;
+                    }
+                }
+                for (int y = 0; y < 3; y++) {
+                    if (tmpArray[y] != 0 && tmpArray[y + 1] != 0) {
+                        if (tmpArray[y] == tmpArray[y + 1]) {
+                            tmpArray[y] += tmpArray[y + 1];
+                            tmpArray[y + 1] = 0;
+                        }
+                    }
+                }
+                for (int y = 0; y < 4; y++) {
+                    gridValues[y][x] = tmpArray[3 - y];
+                }
+            }
+        }
+        newValue = TRUE;
     }
+    //Add a 2 if NewValue is set to true and there is a zero in the gridValues array
+    if ((newValue) && (containsZero())){
+        int x = rand() % 4;
+        int y = rand() % 4;
+        while (gridValues[x][y] != 0) {
+            x = rand() % 4;
+            y = rand() % 4;
+        }
+        gridValues[x][y] = 2;
+    }
+    InvalidateRect(hWnd, NULL, TRUE);
 }
 
 //
@@ -163,6 +284,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
     case WM_COMMAND:
         {
+            //If statements calls the button clicked function with the relevant parameter
+            if (HIWORD(wParam) == BN_CLICKED) {
+                if ((HWND)lParam == upButton) {
+                    buttonClicked(0, hWnd);
+                }
+                else if ((HWND)lParam == downButton) {
+                    buttonClicked(1, hWnd);
+                }
+                else if ((HWND)lParam == leftButton) {
+                    buttonClicked(2, hWnd);
+                }
+                else if ((HWND)lParam == rightButton) {
+                    buttonClicked(3, hWnd);
+                }
+            }
             int wmId = LOWORD(wParam);
             // Parse the menu selections:
             switch (wmId)
@@ -176,21 +312,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             default:
                 return DefWindowProc(hWnd, message, wParam, lParam);
             }
-            //If statements calls the button clicked function with the relevant parameter
-            if (HIWORD(wParam) == BN_CLICKED) {
-                if ((HWND)lParam == upButton) {
-                    buttonClicked(0);
-                }
-                else if ((HWND)lParam == downButton) {
-                    buttonClicked(1);
-                }
-                else if ((HWND)lParam == leftButton) {
-                    buttonClicked(2);
-                }
-                else if ((HWND)lParam == rightButton) {
-                    buttonClicked(3);
-                }
-            }
         }
         break;
     case WM_PAINT:
@@ -203,17 +324,61 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     Rectangle(hdc, (gameWidth/4)*i, (gameHeight/4)*y, (gameWidth/4)+((gameWidth/4)*i), (gameHeight/4)+((gameHeight/4)*y));
                 }
             }
-            //Draw three 2 in a empty square
-            for (int i = 0; i < 3; i++) {
-                int x = rand() % 4;
-                int y = rand() % 4;
-                while (gridValues[x][y] == 2) {
-                    x = rand() % 4;
-                    y = rand() % 4;
+            if (newGame) {
+                //Draw three 2 in a empty square
+                for (int i = 0; i < 3; i++) {
+                    int x = rand() % 4;
+                    int y = rand() % 4;
+                    while (gridValues[x][y] == 2) {
+                        x = rand() % 4;
+                        y = rand() % 4;
+                    }
+                    gridValues[x][y] = 2;
+                    TextOut(hdc, ((x + 1) * (gameWidth / 4)) - 75, ((y + 1) * (gameHeight / 4)) - 75, TEXT("2"), 1);
                 }
-                gridValues[x][y] = 2;
-                TextOut(hdc, ((x+1) * (gameWidth / 4)) - 75, ((y+1) * (gameHeight / 4)) - 75, TEXT("2"), 1);
             }
+            else {
+                for (int x = 0; x < 4; x++) {
+                    for (int y = 0; y < 4; y++) {
+                        if (gridValues[x][y] != 0) {
+                            if (gridValues[x][y] == 2) {
+                                TextOut(hdc, ((x + 1) * (gameWidth / 4)) - 75, ((y + 1) * (gameHeight / 4)) - 75, TEXT("2"), 1);
+                            }
+                            else if (gridValues[x][y] == 4) {
+                                TextOut(hdc, ((x + 1) * (gameWidth / 4)) - 75, ((y + 1) * (gameHeight / 4)) - 75, TEXT("4"), 1);
+                            }
+                            else if (gridValues[x][y] == 8) {
+                                TextOut(hdc, ((x + 1) * (gameWidth / 4)) - 75, ((y + 1) * (gameHeight / 4)) - 75, TEXT("8"), 1);
+                            }
+                            else if (gridValues[x][y] == 16) {
+                                TextOut(hdc, ((x + 1) * (gameWidth / 4)) - 75, ((y + 1) * (gameHeight / 4)) - 75, TEXT("16"), 2);
+                            }
+                            else if (gridValues[x][y] == 32) {
+                                TextOut(hdc, ((x + 1) * (gameWidth / 4)) - 75, ((y + 1) * (gameHeight / 4)) - 75, TEXT("32"), 2);
+                            }
+                            else if (gridValues[x][y] == 64) {
+                                TextOut(hdc, ((x + 1) * (gameWidth / 4)) - 75, ((y + 1) * (gameHeight / 4)) - 75, TEXT("64"), 2);
+                            }
+                            else if (gridValues[x][y] == 128) {
+                                TextOut(hdc, ((x + 1) * (gameWidth / 4)) - 75, ((y + 1) * (gameHeight / 4)) - 75, TEXT("128"), 3);
+                            }
+                            else if (gridValues[x][y] == 256) {
+                                TextOut(hdc, ((x + 1) * (gameWidth / 4)) - 75, ((y + 1) * (gameHeight / 4)) - 75, TEXT("256"), 3);
+                            }
+                            else if (gridValues[x][y] == 512) {
+                                TextOut(hdc, ((x + 1) * (gameWidth / 4)) - 75, ((y + 1) * (gameHeight / 4)) - 75, TEXT("512"), 3);
+                            }
+                            else if (gridValues[x][y] == 1024) {
+                                TextOut(hdc, ((x + 1) * (gameWidth / 4)) - 75, ((y + 1) * (gameHeight / 4)) - 75, TEXT("1024"), 4);
+                            }
+                            else if (gridValues[x][y] == 2048) {
+                                TextOut(hdc, ((x + 1) * (gameWidth / 4)) - 75, ((y + 1) * (gameHeight / 4)) - 75, TEXT("2048"), 4);
+                            }
+                        }
+                    }
+                }
+            }
+            newGame = FALSE;
             EndPaint(hWnd, &ps);
         }
         break;
