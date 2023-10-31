@@ -20,6 +20,10 @@ int gridValues[4][4] = {
     {0,0,0,0},
     {0,0,0,0}
 };
+HWND upButton;
+HWND downButton;
+HWND rightButton;
+HWND leftButton;
 
 // Forward declarations of functions included in this code module:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -111,10 +115,10 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
       CW_USEDEFAULT, 0, windowWidth, windowHeight, nullptr, nullptr, hInstance, nullptr);
    //Draw buttons
-   HWND upButton = CreateWindow(L"BUTTON", L"Up", WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, (gameWidth / 2) - 50, gameHeight, 100, 50, hWnd, NULL, (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
-   HWND leftButton = CreateWindow(L"BUTTON", L"Left", WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, (gameWidth / 2) - 150, gameHeight + 50, 100, 50, hWnd, NULL, (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
-   HWND downButton = CreateWindow(L"BUTTON", L"Down", WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, (gameWidth / 2) - 50, gameHeight + 50, 100, 50, hWnd, NULL, (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
-   HWND rightButton = CreateWindow(L"BUTTON", L"Right", WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, (gameWidth / 2) + 50, gameHeight + 50, 100, 50, hWnd, NULL, (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
+   upButton = CreateWindow(L"BUTTON", L"Up", WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, (gameWidth / 2) - 50, gameHeight, 100, 50, hWnd, NULL, (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
+   leftButton = CreateWindow(L"BUTTON", L"Left", WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, (gameWidth / 2) - 150, gameHeight + 50, 100, 50, hWnd, NULL, (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
+   downButton = CreateWindow(L"BUTTON", L"Down", WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, (gameWidth / 2) - 50, gameHeight + 50, 100, 50, hWnd, NULL, (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
+   rightButton = CreateWindow(L"BUTTON", L"Right", WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, (gameWidth / 2) + 50, gameHeight + 50, 100, 50, hWnd, NULL, (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
 
    if (!hWnd)
    {
@@ -125,6 +129,22 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    UpdateWindow(hWnd);
 
    return TRUE;
+}
+
+//Function is called to interact with the game
+void buttonClicked(int param) {
+    if (param == 0) {
+
+    }
+    else if (param == 1) {
+
+    }
+    else if (param == 2) {
+
+    }
+    else if (param == 3) {
+
+    }
 }
 
 //
@@ -156,6 +176,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             default:
                 return DefWindowProc(hWnd, message, wParam, lParam);
             }
+            //If statements calls the button clicked function with the relevant parameter
+            if (HIWORD(wParam) == BN_CLICKED) {
+                if ((HWND)lParam == upButton) {
+                    buttonClicked(0);
+                }
+                else if ((HWND)lParam == downButton) {
+                    buttonClicked(1);
+                }
+                else if ((HWND)lParam == leftButton) {
+                    buttonClicked(2);
+                }
+                else if ((HWND)lParam == rightButton) {
+                    buttonClicked(3);
+                }
+            }
         }
         break;
     case WM_PAINT:
@@ -170,7 +205,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
             //Draw three 2 in a empty square
             for (int i = 0; i < 3; i++) {
-
+                int x = rand() % 4;
+                int y = rand() % 4;
+                while (gridValues[x][y] == 2) {
+                    x = rand() % 4;
+                    y = rand() % 4;
+                }
+                gridValues[x][y] = 2;
+                TextOut(hdc, ((x+1) * (gameWidth / 4)) - 75, ((y+1) * (gameHeight / 4)) - 75, TEXT("2"), 1);
             }
             EndPaint(hWnd, &ps);
         }
