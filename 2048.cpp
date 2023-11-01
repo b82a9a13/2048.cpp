@@ -147,16 +147,41 @@ bool containsZero() {
 //Function is called to interact with the game and move the values in the direction provided and add adjacent values if they are the same
 void buttonClicked(int param, HWND hWnd) {
     bool newValue = FALSE;
-    if (param == 0) {
-        //Up
+    if (param == 0 || param == 1 || param == 2 || param == 3) {
         for (int i = 0; i < 3; i++) {
             for (int x = 0; x < 4; x++) {
                 int tmpArray[4] = { 0,0,0,0 };
                 int arrPos = 0;
-                for (int y = 0; y < 4; y++) {
-                    if (gridValues[x][y] != 0) {
-                        tmpArray[arrPos] = gridValues[x][y];
-                        arrPos++;
+                if (param == 0) {
+                    for (int y = 0; y < 4; y++) {
+                        if (gridValues[x][y] != 0) {
+                            tmpArray[arrPos] = gridValues[x][y];
+                            arrPos++;
+                        }
+                    }
+                }
+                else if (param == 1) {
+                    for (int y = 3; y >= 0; y--) {
+                        if (gridValues[x][y] != 0) {
+                            tmpArray[arrPos] = gridValues[x][y];
+                            arrPos++;
+                        }
+                    }
+                }
+                else if (param == 2) {
+                    for (int y = 0; y < 4; y++) {
+                        if (gridValues[y][x] != 0) {
+                            tmpArray[arrPos] = gridValues[y][x];
+                            arrPos++;
+                        }
+                    }
+                }
+                else if (param == 3) {
+                    for (int y = 3; y >= 0; y--) {
+                        if (gridValues[y][x] != 0) {
+                            tmpArray[arrPos] = gridValues[y][x];
+                            arrPos++;
+                        }
                     }
                 }
                 for (int y = 0; y < 3; y++) {
@@ -167,89 +192,25 @@ void buttonClicked(int param, HWND hWnd) {
                         }
                     }
                 }
-                for (int y = 0; y < 4; y++) {
-                    gridValues[x][y] = tmpArray[y];
-                }
-            }
-        }
-        newValue = TRUE;
-    }
-    else if (param == 1) {
-        //Down
-        for (int i = 0; i < 3; i++) {
-            for (int x = 0; x < 4; x++) {
-                int tmpArray[4] = { 0,0,0,0 };
-                int arrPos = 0;
-                for (int y = 3; y >= 0; y--) {
-                    if (gridValues[x][y] != 0) {
-                        tmpArray[arrPos] = gridValues[x][y];
-                        arrPos++;
+                if (param == 0) {
+                    for (int y = 0; y < 4; y++) {
+                        gridValues[x][y] = tmpArray[y];
                     }
                 }
-                for (int y = 0; y < 3; y++) {
-                    if (tmpArray[y] != 0 && tmpArray[y + 1] != 0) {
-                        if (tmpArray[y] == tmpArray[y + 1]) {
-                            tmpArray[y] += tmpArray[y + 1];
-                            tmpArray[y + 1] = 0;
-                        }
+                else if (param == 1) {
+                    for (int y = 0; y < 4; y++) {
+                        gridValues[x][y] = tmpArray[3 - y];
                     }
                 }
-                for (int y = 0; y < 4; y++) {
-                    gridValues[x][y] = tmpArray[3 - y];
-                }
-            }
-        }
-        newValue = TRUE;
-    }
-    else if (param == 2) {
-        //Left
-        for (int i = 0; i < 3; i++) {
-            for (int x = 0; x < 4; x++) {
-                int tmpArray[4] = { 0,0,0,0 };
-                int arrPos = 0;
-                for (int y = 0; y < 4; y++) {
-                    if (gridValues[y][x] != 0) {
-                        tmpArray[arrPos] = gridValues[y][x];
-                        arrPos++;
+                else if (param == 2) {
+                    for (int y = 0; y < 4; y++) {
+                        gridValues[y][x] = tmpArray[y];
                     }
                 }
-                for (int y = 0; y < 3; y++) {
-                    if (tmpArray[y] != 0 && tmpArray[y + 1] != 0) {
-                        if (tmpArray[y] == tmpArray[y + 1]) {
-                            tmpArray[y] += tmpArray[y + 1];
-                            tmpArray[y + 1] = 0;
-                        }
+                else if (param == 3) {
+                    for (int y = 0; y < 4; y++) {
+                        gridValues[y][x] = tmpArray[3 - y];
                     }
-                }
-                for (int y = 0; y < 4; y++) {
-                    gridValues[y][x] = tmpArray[y];
-                }
-            }
-        }
-        newValue = TRUE;
-    }
-    else if (param == 3) {
-        //Right
-        for (int i = 0; i < 3; i++) {
-            for (int x = 0; x < 4; x++) {
-                int tmpArray[4] = { 0,0,0,0 };
-                int arrPos = 0;
-                for (int y = 3; y >= 0; y--) {
-                    if (gridValues[y][x] != 0) {
-                        tmpArray[arrPos] = gridValues[y][x];
-                        arrPos++;
-                    }
-                }
-                for (int y = 0; y < 3; y++) {
-                    if (tmpArray[y] != 0 && tmpArray[y + 1] != 0) {
-                        if (tmpArray[y] == tmpArray[y + 1]) {
-                            tmpArray[y] += tmpArray[y + 1];
-                            tmpArray[y + 1] = 0;
-                        }
-                    }
-                }
-                for (int y = 0; y < 4; y++) {
-                    gridValues[y][x] = tmpArray[3 - y];
                 }
             }
         }
