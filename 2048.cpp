@@ -12,8 +12,8 @@ WCHAR szTitle[MAX_LOADSTRING];                  // The title bar text
 WCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name
 int gameWidth = 600;
 int gameHeight = 600;
-int windowWidth = gameWidth+200;
-int windowHeight = gameHeight+200;
+int windowWidth = gameWidth + 200;
+int windowHeight = gameHeight + 200;
 int gridValues[4][4] = {
     {0,0,0,0},
     {0,0,0,0},
@@ -24,7 +24,10 @@ HWND upButton;
 HWND downButton;
 HWND rightButton;
 HWND leftButton;
+HWND resetButton;
 bool newGame = TRUE;
+int score = 0;
+int highScore = 0;
 
 // Forward declarations of functions included in this code module:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -33,9 +36,9 @@ LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
-                     _In_opt_ HINSTANCE hPrevInstance,
-                     _In_ LPWSTR    lpCmdLine,
-                     _In_ int       nCmdShow)
+    _In_opt_ HINSTANCE hPrevInstance,
+    _In_ LPWSTR    lpCmdLine,
+    _In_ int       nCmdShow)
 {
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
@@ -48,7 +51,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     MyRegisterClass(hInstance);
 
     // Perform application initialization:
-    if (!InitInstance (hInstance, nCmdShow))
+    if (!InitInstance(hInstance, nCmdShow))
     {
         return FALSE;
     }
@@ -67,7 +70,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         }
     }
 
-    return (int) msg.wParam;
+    return (int)msg.wParam;
 }
 
 
@@ -83,17 +86,17 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 
     wcex.cbSize = sizeof(WNDCLASSEX);
 
-    wcex.style          = CS_HREDRAW | CS_VREDRAW;
-    wcex.lpfnWndProc    = WndProc;
-    wcex.cbClsExtra     = 0;
-    wcex.cbWndExtra     = 0;
-    wcex.hInstance      = hInstance;
-    wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_MY2048));
-    wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
-    wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
-    wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_MY2048);
-    wcex.lpszClassName  = szWindowClass;
-    wcex.hIconSm        = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
+    wcex.style = CS_HREDRAW | CS_VREDRAW;
+    wcex.lpfnWndProc = WndProc;
+    wcex.cbClsExtra = 0;
+    wcex.cbWndExtra = 0;
+    wcex.hInstance = hInstance;
+    wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_MY2048));
+    wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
+    wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+    wcex.lpszMenuName = MAKEINTRESOURCEW(IDC_MY2048);
+    wcex.lpszClassName = szWindowClass;
+    wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
     return RegisterClassExW(&wcex);
 }
@@ -110,27 +113,39 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 //
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
-   hInst = hInstance; // Store instance handle in our global variable
+    hInst = hInstance; // Store instance handle in our global variable
 
-   //Create the window and set the options available and set the width and height of the window
-   HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
-      CW_USEDEFAULT, 0, windowWidth, windowHeight, nullptr, nullptr, hInstance, nullptr);
-   //Draw buttons
-   upButton = CreateWindow(L"BUTTON", L"Up", WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, (gameWidth / 2) - 50, gameHeight, 100, 50, hWnd, NULL, (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
-   leftButton = CreateWindow(L"BUTTON", L"Left", WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, (gameWidth / 2) - 150, gameHeight + 50, 100, 50, hWnd, NULL, (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
-   downButton = CreateWindow(L"BUTTON", L"Down", WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, (gameWidth / 2) - 50, gameHeight + 50, 100, 50, hWnd, NULL, (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
-   rightButton = CreateWindow(L"BUTTON", L"Right", WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, (gameWidth / 2) + 50, gameHeight + 50, 100, 50, hWnd, NULL, (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
+    //Create the window and set the options available and set the width and height of the window
+    HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
+        CW_USEDEFAULT, 0, windowWidth, windowHeight, nullptr, nullptr, hInstance, nullptr);
+    //Draw buttons
+    upButton = CreateWindow(L"BUTTON", L"Up", WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, (gameWidth / 2) - 50, gameHeight, 100, 50, hWnd, NULL, (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
+    leftButton = CreateWindow(L"BUTTON", L"Left", WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, (gameWidth / 2) - 150, gameHeight + 50, 100, 50, hWnd, NULL, (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
+    downButton = CreateWindow(L"BUTTON", L"Down", WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, (gameWidth / 2) - 50, gameHeight + 50, 100, 50, hWnd, NULL, (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
+    rightButton = CreateWindow(L"BUTTON", L"Right", WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, (gameWidth / 2) + 50, gameHeight + 50, 100, 50, hWnd, NULL, (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
+    resetButton = CreateWindow(L"BUTTON", L"Reset", WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, gameWidth + 50, 100, 100, 50, hWnd, NULL, (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
+    if (!hWnd)
+    {
+        return FALSE;
+    }
 
-   if (!hWnd)
-   {
-      return FALSE;
-   }
+    ShowWindow(hWnd, nCmdShow);
+    UpdateWindow(hWnd);
 
-   ShowWindow(hWnd, nCmdShow);
-   UpdateWindow(hWnd);
-
-   return TRUE;
+    return TRUE;
 }
+//Function is called to reset the game
+void resetGame(HWND hWnd) {
+    for (int x = 0; x < 4; x++) {
+        for (int y = 0; y < 4; y++) {
+            gridValues[x][y] = 0;
+        }
+    }
+    newGame = TRUE;
+    score = 0;
+    InvalidateRect(hWnd, NULL, TRUE);
+}
+
 
 //Check if there is a zero in the gridValues array
 bool containsZero() {
@@ -189,6 +204,7 @@ void buttonClicked(int param, HWND hWnd) {
                         if (tmpArray[y] == tmpArray[y + 1]) {
                             tmpArray[y] += tmpArray[y + 1];
                             tmpArray[y + 1] = 0;
+                            score++;
                         }
                     }
                 }
@@ -217,7 +233,7 @@ void buttonClicked(int param, HWND hWnd) {
         newValue = TRUE;
     }
     //Add a 2 if NewValue is set to true and there is a zero in the gridValues array
-    if ((newValue) && (containsZero())){
+    if ((newValue) && (containsZero())) {
         int x = rand() % 4;
         int y = rand() % 4;
         while (gridValues[x][y] != 0) {
@@ -244,105 +260,120 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     switch (message)
     {
     case WM_COMMAND:
-        {
-            //If statements calls the button clicked function with the relevant parameter
-            if (HIWORD(wParam) == BN_CLICKED) {
-                if ((HWND)lParam == upButton) {
-                    buttonClicked(0, hWnd);
-                }
-                else if ((HWND)lParam == downButton) {
-                    buttonClicked(1, hWnd);
-                }
-                else if ((HWND)lParam == leftButton) {
-                    buttonClicked(2, hWnd);
-                }
-                else if ((HWND)lParam == rightButton) {
-                    buttonClicked(3, hWnd);
-                }
+    {
+        //If statements calls the button clicked function with the relevant parameter
+        if (HIWORD(wParam) == BN_CLICKED) {
+            if ((HWND)lParam == upButton) {
+                buttonClicked(0, hWnd);
             }
-            int wmId = LOWORD(wParam);
-            // Parse the menu selections:
-            switch (wmId)
-            {
-            case IDM_ABOUT:
-                DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
-                break;
-            case IDM_EXIT:
-                DestroyWindow(hWnd);
-                break;
-            default:
-                return DefWindowProc(hWnd, message, wParam, lParam);
+            else if ((HWND)lParam == downButton) {
+                buttonClicked(1, hWnd);
+            }
+            else if ((HWND)lParam == leftButton) {
+                buttonClicked(2, hWnd);
+            }
+            else if ((HWND)lParam == rightButton) {
+                buttonClicked(3, hWnd);
+            }
+            else if ((HWND)lParam == resetButton) {
+                resetGame(hWnd);
             }
         }
-        break;
-    case WM_PAINT:
+        int wmId = LOWORD(wParam);
+        // Parse the menu selections:
+        switch (wmId)
         {
-            PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(hWnd, &ps);
-            //Draw the 2048 grid
-            for (int i = 0; i < 4; i++) {
+        case IDM_ABOUT:
+            DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+            break;
+        case IDM_EXIT:
+            DestroyWindow(hWnd);
+            break;
+        default:
+            return DefWindowProc(hWnd, message, wParam, lParam);
+        }
+    }
+    break;
+    case WM_PAINT:
+    {
+        PAINTSTRUCT ps;
+        HDC hdc = BeginPaint(hWnd, &ps);
+        //Set high score if current score is higher
+        highScore = (score > highScore) ? score : highScore;
+        //Draw the score and high score
+        RECT rc;
+        GetClientRect(hWnd, &rc);
+        std::wstring highScoreText = L"High Score: " + std::to_wstring(highScore);
+        rc.right -= 50;
+        rc.top += 10;
+        DrawText(hdc, highScoreText.c_str(), -1, &rc, DT_TOP | DT_RIGHT);
+        std::wstring scoreText = L"Score:" + std::to_wstring(score);
+        rc.top += 25;
+        DrawText(hdc, scoreText.c_str(), -1, &rc, DT_TOP | DT_RIGHT);
+        //Draw the 2048 grid
+        for (int i = 0; i < 4; i++) {
+            for (int y = 0; y < 4; y++) {
+                Rectangle(hdc, (gameWidth / 4) * i, (gameHeight / 4) * y, (gameWidth / 4) + ((gameWidth / 4) * i), (gameHeight / 4) + ((gameHeight / 4) * y));
+            }
+        }
+        if (newGame) {
+            //Draw three 2 in a empty square
+            for (int i = 0; i < 3; i++) {
+                int x = rand() % 4;
+                int y = rand() % 4;
+                while (gridValues[x][y] == 2) {
+                    x = rand() % 4;
+                    y = rand() % 4;
+                }
+                gridValues[x][y] = 2;
+                TextOut(hdc, ((x + 1) * (gameWidth / 4)) - 75, ((y + 1) * (gameHeight / 4)) - 75, TEXT("2"), 1);
+            }
+        }
+        else {
+            for (int x = 0; x < 4; x++) {
                 for (int y = 0; y < 4; y++) {
-                    Rectangle(hdc, (gameWidth/4)*i, (gameHeight/4)*y, (gameWidth/4)+((gameWidth/4)*i), (gameHeight/4)+((gameHeight/4)*y));
-                }
-            }
-            if (newGame) {
-                //Draw three 2 in a empty square
-                for (int i = 0; i < 3; i++) {
-                    int x = rand() % 4;
-                    int y = rand() % 4;
-                    while (gridValues[x][y] == 2) {
-                        x = rand() % 4;
-                        y = rand() % 4;
-                    }
-                    gridValues[x][y] = 2;
-                    TextOut(hdc, ((x + 1) * (gameWidth / 4)) - 75, ((y + 1) * (gameHeight / 4)) - 75, TEXT("2"), 1);
-                }
-            }
-            else {
-                for (int x = 0; x < 4; x++) {
-                    for (int y = 0; y < 4; y++) {
-                        if (gridValues[x][y] != 0) {
-                            if (gridValues[x][y] == 2) {
-                                TextOut(hdc, ((x + 1) * (gameWidth / 4)) - 75, ((y + 1) * (gameHeight / 4)) - 75, TEXT("2"), 1);
-                            }
-                            else if (gridValues[x][y] == 4) {
-                                TextOut(hdc, ((x + 1) * (gameWidth / 4)) - 75, ((y + 1) * (gameHeight / 4)) - 75, TEXT("4"), 1);
-                            }
-                            else if (gridValues[x][y] == 8) {
-                                TextOut(hdc, ((x + 1) * (gameWidth / 4)) - 75, ((y + 1) * (gameHeight / 4)) - 75, TEXT("8"), 1);
-                            }
-                            else if (gridValues[x][y] == 16) {
-                                TextOut(hdc, ((x + 1) * (gameWidth / 4)) - 75, ((y + 1) * (gameHeight / 4)) - 75, TEXT("16"), 2);
-                            }
-                            else if (gridValues[x][y] == 32) {
-                                TextOut(hdc, ((x + 1) * (gameWidth / 4)) - 75, ((y + 1) * (gameHeight / 4)) - 75, TEXT("32"), 2);
-                            }
-                            else if (gridValues[x][y] == 64) {
-                                TextOut(hdc, ((x + 1) * (gameWidth / 4)) - 75, ((y + 1) * (gameHeight / 4)) - 75, TEXT("64"), 2);
-                            }
-                            else if (gridValues[x][y] == 128) {
-                                TextOut(hdc, ((x + 1) * (gameWidth / 4)) - 75, ((y + 1) * (gameHeight / 4)) - 75, TEXT("128"), 3);
-                            }
-                            else if (gridValues[x][y] == 256) {
-                                TextOut(hdc, ((x + 1) * (gameWidth / 4)) - 75, ((y + 1) * (gameHeight / 4)) - 75, TEXT("256"), 3);
-                            }
-                            else if (gridValues[x][y] == 512) {
-                                TextOut(hdc, ((x + 1) * (gameWidth / 4)) - 75, ((y + 1) * (gameHeight / 4)) - 75, TEXT("512"), 3);
-                            }
-                            else if (gridValues[x][y] == 1024) {
-                                TextOut(hdc, ((x + 1) * (gameWidth / 4)) - 75, ((y + 1) * (gameHeight / 4)) - 75, TEXT("1024"), 4);
-                            }
-                            else if (gridValues[x][y] == 2048) {
-                                TextOut(hdc, ((x + 1) * (gameWidth / 4)) - 75, ((y + 1) * (gameHeight / 4)) - 75, TEXT("2048"), 4);
-                            }
+                    if (gridValues[x][y] != 0) {
+                        if (gridValues[x][y] == 2) {
+                            TextOut(hdc, ((x + 1) * (gameWidth / 4)) - 75, ((y + 1) * (gameHeight / 4)) - 75, TEXT("2"), 1);
+                        }
+                        else if (gridValues[x][y] == 4) {
+                            TextOut(hdc, ((x + 1) * (gameWidth / 4)) - 75, ((y + 1) * (gameHeight / 4)) - 75, TEXT("4"), 1);
+                        }
+                        else if (gridValues[x][y] == 8) {
+                            TextOut(hdc, ((x + 1) * (gameWidth / 4)) - 75, ((y + 1) * (gameHeight / 4)) - 75, TEXT("8"), 1);
+                        }
+                        else if (gridValues[x][y] == 16) {
+                            TextOut(hdc, ((x + 1) * (gameWidth / 4)) - 75, ((y + 1) * (gameHeight / 4)) - 75, TEXT("16"), 2);
+                        }
+                        else if (gridValues[x][y] == 32) {
+                            TextOut(hdc, ((x + 1) * (gameWidth / 4)) - 75, ((y + 1) * (gameHeight / 4)) - 75, TEXT("32"), 2);
+                        }
+                        else if (gridValues[x][y] == 64) {
+                            TextOut(hdc, ((x + 1) * (gameWidth / 4)) - 75, ((y + 1) * (gameHeight / 4)) - 75, TEXT("64"), 2);
+                        }
+                        else if (gridValues[x][y] == 128) {
+                            TextOut(hdc, ((x + 1) * (gameWidth / 4)) - 75, ((y + 1) * (gameHeight / 4)) - 75, TEXT("128"), 3);
+                        }
+                        else if (gridValues[x][y] == 256) {
+                            TextOut(hdc, ((x + 1) * (gameWidth / 4)) - 75, ((y + 1) * (gameHeight / 4)) - 75, TEXT("256"), 3);
+                        }
+                        else if (gridValues[x][y] == 512) {
+                            TextOut(hdc, ((x + 1) * (gameWidth / 4)) - 75, ((y + 1) * (gameHeight / 4)) - 75, TEXT("512"), 3);
+                        }
+                        else if (gridValues[x][y] == 1024) {
+                            TextOut(hdc, ((x + 1) * (gameWidth / 4)) - 75, ((y + 1) * (gameHeight / 4)) - 75, TEXT("1024"), 4);
+                        }
+                        else if (gridValues[x][y] == 2048) {
+                            TextOut(hdc, ((x + 1) * (gameWidth / 4)) - 75, ((y + 1) * (gameHeight / 4)) - 75, TEXT("2048"), 4);
                         }
                     }
                 }
             }
-            newGame = FALSE;
-            EndPaint(hWnd, &ps);
         }
-        break;
+        newGame = FALSE;
+        EndPaint(hWnd, &ps);
+    }
+    break;
     case WM_DESTROY:
         PostQuitMessage(0);
         break;
